@@ -2,22 +2,19 @@ import { ReactNode, useState } from 'react';
 
 import Sidebar from '@/Components/Sidebar';
 import Topbar from '@/Components/Topbar';
-import { UserRole } from '@/config/navigation';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 
 type AppLayoutProps = {
     title: string;
     children: ReactNode;
-    roleOverride?: UserRole;
 };
 
 export default function AppLayout({
     title,
     children,
-    roleOverride,
 }: AppLayoutProps) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const role = useCurrentRole(roleOverride);
+    const role = useCurrentRole();
 
     return (
         <div className="min-h-screen bg-slate-100 text-slate-900">

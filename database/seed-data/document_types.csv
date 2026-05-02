@@ -1,0 +1,38 @@
+﻿code,name,agency,category,required,permanent_allowed,validity_months,aliases,keywords,sort_order,sample_count
+S01,Nomor Izin Berusaha (NIB),,,True,True,,Nomor Izin Berusaha,Nomor Izin Berusaha|NIB,1,165
+S02,Sertifikat Pemenuhan SPM,,,True,True,,,Sertifikat Pemenuhan SPM,2,165
+S03,Persetujuan pengoperasian kapal angkutan penyeberangan sebelumnya,,,True,True,,,Persetujuan pengoperasian kapal angkutan penyeberangan sebelumnya,3,165
+S04,Sertifikat Kesehatan/Medical Certificate,,,True,False,,Sertifikat Kesehatan|Medical Certificate,Sertifikat Kesehatan/Medical Certificate,4,153
+S05,Buku Pelaut/Seaman’s Book,,,True,False,,Buku Pelaut|Seaman’s Book,Buku Pelaut/Seaman’s Book,5,153
+S06,Sertifikat Ahli Nautika/Deck Officer,,,True,True,,Sertifikat Ahli Nautika|Deck Officer,Sertifikat Ahli Nautika/Deck Officer,6,153
+S07,Sertifikat Keterampilan / Certificate of Proficiency :,,,True,False,,Sertifikat Keterampilan|Certificate of Proficiency,Sertifikat Keterampilan / Certificate of Proficiency :,7,165
+S08,a. Medical First Aid,,,True,True,,,a. Medical First Aid,8,165
+S09,b. Proficiency in Survival Craft and Rescue Boats,,,True,True,,,b. Proficiency in Survival Craft and Rescue Boats,9,165
+S10,c. Basic Safety Training,,,True,True,,,c. Basic Safety Training,10,165
+S11,e. Medical Care on Board Ship,,,True,True,,,e. Medical Care on Board Ship,11,165
+S12,f. Advanced Fire Fighting,,,True,True,,,f. Advanced Fire Fighting,12,165
+S13,Sertifikat Pengukuhan,,,True,True,,,Sertifikat Pengukuhan,13,165
+S14,Surat Ukur Internasional (1969) / International Tonnage Certificate,,,True,True,,Surat Ukur Internasional / International Tonnage Certificate|Surat Ukur Internasional|International Tonnage Certificate,Surat Ukur Internasional / International Tonnage Certificate|1969,14,165
+S15,Bukti Kepemilikan Kapal (Grosse Akte),,,True,True,,Bukti Kepemilikan Kapal,Bukti Kepemilikan Kapal|Grosse Akte,15,165
+S16,Surat Laut (Certificate of Nationality),,,True,True,,Surat Laut,Surat Laut|Certificate of Nationality,16,165
+S17,Sertifikat Keselamatan Kapal Penumpang (Passenger Ship Safety Certificate),,,True,True,,Sertifikat Keselamatan Kapal Penumpang,Sertifikat Keselamatan Kapal Penumpang|Passenger Ship Safety Certificate,17,164
+S18,Sertifikat Internasional Pencegahan Pencemaran Oleh Minyak (International Oil Pollution Prevention Certificate),,,True,True,,Sertifikat Internasional Pencegahan Pencemaran Oleh Minyak,Sertifikat Internasional Pencegahan Pencemaran Oleh Minyak|International Oil Pollution Prevention Certificate,18,164
+S19,Dokumen Penyesuaian Manajemen Keselamatan (Document Of Compliance),,,True,True,,Dokumen Penyesuaian Manajemen Keselamatan,Dokumen Penyesuaian Manajemen Keselamatan|Document Of Compliance,19,164
+S20,Sertifikat Manajemen Keselamatan (Interim Safety Management Certificate),,,True,False,,Sertifikat Manajemen Keselamatan,Sertifikat Manajemen Keselamatan|Interim Safety Management Certificate,20,164
+S21,CLC,,,True,False,,,CLC,21,164
+S22,Wreck Removal,,,True,False,,,Wreck Removal,22,164
+S23,Surat Keterangan Susunan Perwira Deck dan Mesin (Dokumen Pengawakan Minimum),,,True,True,,Surat Keterangan Susunan Perwira Deck dan Mesin,Surat Keterangan Susunan Perwira Deck dan Mesin|Dokumen Pengawakan Minimum,23,164
+S24,Sertifikat Garis Muat Internasional (1966),,,True,True,,Sertifikat Garis Muat Internasional,Sertifikat Garis Muat Internasional|1966,24,164
+S25,Sertifikat Klasifikasi lambung,,,True,False,,,Sertifikat Klasifikasi lambung,25,163
+S26,Sertifikat Klasifikasi Mesin,,,True,False,,,Sertifikat Klasifikasi Mesin,26,164
+S27,Izin Stasiun Radio Kapal Laut,,,True,True,,,Izin Stasiun Radio Kapal Laut,27,164
+S28,Surat Pengawasan PPPK Kapal,,,True,False,,,Surat Pengawasan PPPK Kapal,28,164
+S29,Sertifikat Bebas Tindakan Sanitasi kapal,,,True,False,,,Sertifikat Bebas Tindakan Sanitasi kapal,29,164
+S30,Certificate Hidrostatic Release Unit / HRU,,,True,False,,Certificate Hidrostatic Release Unit|HRU,Certificate Hidrostatic Release Unit / HRU,30,164
+S31,Sertifikat Pemeriksaan Ulang Liferaft,,,True,False,,,Sertifikat Pemeriksaan Ulang Liferaft,31,164
+S32,Sertifikat Pemeriksaan Ulang Alat Pemadam Kebakaran,,,True,False,,,Sertifikat Pemeriksaan Ulang Alat Pemadam Kebakaran,32,164
+S33,Sertifikat Anti Tertitip,,,True,True,,,Sertifikat Anti Tertitip,33,158
+S34,Rencana Pengoperasian Kapal (RPK),,,True,False,,Rencana Pengoperasian Kapal,Rencana Pengoperasian Kapal|RPK,34,146
+S35,Persyaratan Khusus Untuk Kapal Yang Mengangkut Barang Berbahaya,,,True,False,,,Persyaratan Khusus Untuk Kapal Yang Mengangkut Barang Berbahaya,35,3
+S36,RPK (Rencana Pengoperasian Kapal),,,True,False,,RPK,RPK|Rencana Pengoperasian Kapal,36,4
+S37,47,,,True,False,,,47,37,1

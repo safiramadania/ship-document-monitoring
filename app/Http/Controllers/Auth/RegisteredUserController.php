@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -21,7 +24,11 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('Auth/Register');
+        return Inertia::render('Auth/Register', [
+            'branches' => Branch::query()
+                ->orderBy('name')
+                ->get(['id', 'code', 'name']),
+        ]);
     }
 
     /**
@@ -34,12 +41,18 @@ class RegisteredUserController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|lowercase|email|max:255|unique:'.User::class,
+            'branch_id' => ['required', 'exists:branches,id'],
+            'job_title' => ['nullable', 'string', 'max:255'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
+            'role' => UserRole::UserCabang->value,
+            'status' => UserStatus::Pending->value,
+            'branch_id' => $request->branch_id,
+            'job_title' => $request->job_title,
             'password' => Hash::make($request->password),
         ]);
 
@@ -47,6 +60,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('approval.pending', absolute: false));
     }
 }

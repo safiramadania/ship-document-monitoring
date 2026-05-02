@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Enums\UserRole;
+use App\Enums\UserStatus;
+use App\Models\Branch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,14 +21,28 @@ class RegistrationTest extends TestCase
 
     public function test_new_users_can_register(): void
     {
+        $branch = Branch::create([
+            'code' => 'TEST',
+            'name' => 'Test Branch',
+        ]);
+
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
+            'branch_id' => $branch->id,
+            'job_title' => 'Operator',
             'password' => 'password',
             'password_confirmation' => 'password',
         ]);
 
         $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
+        $response->assertRedirect(route('approval.pending', absolute: false));
+        $this->assertDatabaseHas('users', [
+            'email' => 'test@example.com',
+            'role' => UserRole::UserCabang->value,
+            'status' => UserStatus::Pending->value,
+            'branch_id' => $branch->id,
+            'job_title' => 'Operator',
+        ]);
     }
 }

@@ -1,16 +1,18 @@
 import type { UserRole } from '@/config/navigation';
 
+export interface BranchSummary {
+    id: number;
+    code: string;
+    name: string;
+}
+
 export interface User {
     id: number;
     name: string;
     email: string;
     email_verified_at?: string;
     role?: UserRole;
-    branch?: {
-        id?: number;
-        code: string;
-        name: string;
-    };
+    branch?: BranchSummary | null;
 }
 
 export type PageProps<
@@ -18,5 +20,9 @@ export type PageProps<
 > = T & {
     auth: {
         user: User;
+    };
+    flash?: {
+        success?: string;
+        error?: string;
     };
 };
