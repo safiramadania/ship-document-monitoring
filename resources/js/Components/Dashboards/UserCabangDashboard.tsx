@@ -27,6 +27,13 @@ type Props = {
             created_at?: string | null;
             status: string;
         }>;
+        recentDocumentEdits?: Array<{
+            id: number;
+            timestamp?: string | null;
+            user?: string | null;
+            action: string;
+            summary: string;
+        }>;
     };
 };
 
@@ -142,7 +149,22 @@ export default function UserCabangDashboard({ data }: Props) {
                 />
             </div>
 
-            <RecentActivityList items={uploadActivities} title="Recent Uploads" />
+            <div className="grid gap-6 xl:grid-cols-2">
+                <RecentActivityList
+                    items={uploadActivities}
+                    title="Recent Uploads"
+                />
+                <RecentActivityList
+                    emptyDescription="Perubahan dokumen cabang akan tampil setelah upload, OCR, atau konfirmasi."
+                    items={(data.recentDocumentEdits ?? []).map((edit) => ({
+                        title: edit.action,
+                        description: edit.summary,
+                        timestamp: edit.timestamp ?? '-',
+                        status: 'unknown',
+                    }))}
+                    title="Recent Branch Changes"
+                />
+            </div>
         </div>
     );
 }

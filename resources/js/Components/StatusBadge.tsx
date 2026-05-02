@@ -10,7 +10,9 @@ type StatusTone =
     | 'need_confirmation'
     | 'processing'
     | 'failed'
-    | 'pending';
+    | 'pending'
+    | 'sent'
+    | 'skipped';
 
 type StatusBadgeProps = {
     status: StatusTone | string;
@@ -28,6 +30,8 @@ const statusClasses: Record<StatusTone, string> = {
     processing: 'bg-cyan-50 text-cyan-700 ring-cyan-200',
     failed: 'bg-red-50 text-red-700 ring-red-200',
     pending: 'bg-slate-50 text-slate-600 ring-slate-200',
+    sent: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+    skipped: 'bg-slate-100 text-slate-700 ring-slate-200',
 };
 
 const fallbackClass = 'bg-slate-50 text-slate-600 ring-slate-200';

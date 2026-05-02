@@ -78,4 +78,9 @@ class VesselDocument extends Model
     {
         return $this->hasMany(DocumentExtraction::class);
     }
+
+    public function emailNotifications(): HasMany
+    {
+        return $this->hasMany(EmailNotification::class);
+    }
 }

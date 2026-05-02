@@ -130,6 +130,7 @@ class DashboardController extends Controller
                     ->count(),
             ],
             'recentUploads' => $this->recentUploads(VesselDocument::query()->whereIn('vessel_id', $vesselIds)),
+            'recentDocumentEdits' => $this->recentDocumentEdits($vesselIds),
         ];
     }
 
@@ -202,21 +203,100 @@ class DashboardController extends Controller
             ]);
     }
 
-    private function recentDocumentEdits(): Collection
+    private function recentDocumentEdits(?Collection $vesselIds = null): Collection
     {
-        return AuditLog::query()
+        $query = AuditLog::query()
             ->with('user:id,name')
-            ->whereIn('action', ['document.updated', 'document.confirmed'])
+            ->whereIn('action', [
+                'document.uploaded',
+                'document.ocr_processed',
+                'document.confirmed',
+                'document.updated',
+            ])
+            ->where('entity_type', VesselDocument::class);
+
+        if ($vesselIds !== null) {
+            if ($vesselIds->isEmpty()) {
+                return collect();
+            }
+
+            $documentIds = VesselDocument::query()
+                ->whereIn('vessel_id', $vesselIds)
+                ->pluck('id');
+
+            if ($documentIds->isEmpty()) {
+                return collect();
+            }
+
+            $query->whereIn('entity_id', $documentIds);
+        }
+
+        return $query
             ->latest('created_at')
-            ->limit(5)
+            ->limit(6)
             ->get()
-            ->map(fn (AuditLog $log): array => [
-                'id' => $log->id,
-                'timestamp' => $log->created_at?->toDateTimeString(),
-                'user' => $log->user?->name,
-                'action' => $log->action,
-                'summary' => 'Document change recorded.',
-            ]);
+            ->map(fn (AuditLog $log): array => $this->documentAuditPayload($log));
+    }
+
+    private function documentAuditPayload(AuditLog $log): array
+    {
+        $document = VesselDocument::query()
+            ->with(['vessel.branch', 'documentType'])
+            ->find($log->entity_id);
+
+        return [
+            'id' => $log->id,
+            'timestamp' => $log->created_at?->toDateTimeString(),
+            'user' => $log->user?->name,
+            'action' => $log->action,
+            'branch' => $document?->vessel?->branch?->name,
+            'vessel' => $document?->vessel?->name,
+            'document_type' => $document?->documentType?->name,
+            'summary' => implode(' - ', array_filter([
+                $document?->vessel?->branch?->name,
+                $document?->vessel?->name,
+                $document?->documentType?->name ?? 'Dokumen belum diklasifikasi',
+                $this->changeSummary($log->old_values, $log->new_values),
+            ])),
+        ];
+    }
+
+    private function changeSummary(?array $oldValues, ?array $newValues): string
+    {
+        if (! $oldValues && ! $newValues) {
+            return '';
+        }
+
+        $fields = array_slice(array_unique(array_merge(
+            array_keys($oldValues ?: []),
+            array_keys($newValues ?: [])
+        )), 0, 3);
+
+        return collect($fields)
+            ->map(function (string $field) use ($oldValues, $newValues): string {
+                $old = $this->formatValue($oldValues[$field] ?? null);
+                $new = $this->formatValue($newValues[$field] ?? null);
+
+                if (! $oldValues) {
+                    return "{$field}: {$new}";
+                }
+
+                return "{$field}: {$old} -> {$new}";
+            })
+            ->implode('; ');
+    }
+
+    private function formatValue(mixed $value): string
+    {
+        if (is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (is_array($value)) {
+            return json_encode($value) ?: 'array';
+        }
+
+        return blank($value) ? '-' : (string) $value;
     }
 
     private function branchPayload(?Branch $branch): ?array

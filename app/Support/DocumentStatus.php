@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Enums\ValidityStatus;
 use App\Models\VesselDocument;
+use Carbon\Carbon;
 use Carbon\CarbonInterface;
 
 class DocumentStatus
@@ -33,6 +34,32 @@ class DocumentStatus
         }
 
         if ($document->expires_at->lte($today->copy()->addDays(60)->endOfDay())) {
+            return ValidityStatus::ExpiringSoon->value;
+        }
+
+        return ValidityStatus::Active->value;
+    }
+
+    public static function fromValues(bool $isPermanent, mixed $expiresAt = null, ?CarbonInterface $today = null): string
+    {
+        if ($isPermanent) {
+            return ValidityStatus::Permanent->value;
+        }
+
+        if (! $expiresAt) {
+            return ValidityStatus::Unknown->value;
+        }
+
+        $expiry = $expiresAt instanceof CarbonInterface
+            ? $expiresAt
+            : Carbon::parse($expiresAt);
+        $today ??= now();
+
+        if ($expiry->lt($today->copy()->startOfDay())) {
+            return ValidityStatus::Expired->value;
+        }
+
+        if ($expiry->lte($today->copy()->addDays(60)->endOfDay())) {
             return ValidityStatus::ExpiringSoon->value;
         }
 

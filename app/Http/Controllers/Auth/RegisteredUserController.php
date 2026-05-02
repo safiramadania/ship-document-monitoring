@@ -7,6 +7,7 @@ use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
+    public function __construct(private readonly AuditService $auditService) {}
+
     /**
      * Display the registration view.
      */
@@ -57,6 +60,19 @@ class RegisteredUserController extends Controller
         ]);
 
         event(new Registered($user));
+
+        $this->auditService->log(
+            action: 'user.registered',
+            entity: $user,
+            newValues: [
+                'email' => $user->email,
+                'role' => $user->role,
+                'status' => $user->status,
+                'branch_id' => $user->branch_id,
+                'job_title' => $user->job_title,
+            ],
+            request: $request,
+        );
 
         Auth::login($user);
 

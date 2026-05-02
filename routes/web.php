@@ -2,12 +2,17 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountStatusController;
+use App\Http\Controllers\AuditLogsController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentFileController;
+use App\Http\Controllers\EmailLogsController;
 use App\Http\Controllers\MonitoringController;
+use App\Http\Controllers\OcrConfirmationController;
+use App\Http\Controllers\SmartUploadController;
 use App\Http\Controllers\UserApprovalController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\TargetedUploadController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -37,8 +42,19 @@ Route::middleware(['auth', 'verified', 'active', 'last.seen'])->group(function (
         ->name('documents.preview');
     Route::get('/documents/{vesselDocument}/download', [DocumentFileController::class, 'download'])
         ->name('documents.download');
-    Route::get('/smart-upload', fn () => Inertia::render('SmartUpload'))->name('uploads.smart');
-    Route::get('/ocr-confirmation', fn () => Inertia::render('OcrConfirmation'))->name('ocr.confirmation');
+    Route::get('/smart-upload', [SmartUploadController::class, 'index'])->name('uploads.smart');
+    Route::post('/smart-upload', [SmartUploadController::class, 'store'])->name('uploads.smart.store');
+    Route::get('/ocr-confirmation', function (Request $request) {
+        $documentId = $request->integer('vessel_document_id');
+
+        abort_unless($documentId, 404);
+
+        return redirect()->route('ocr.confirmation', $documentId);
+    })->name('ocr.confirmation.legacy');
+    Route::get('/ocr-confirmation/{vesselDocument}', [OcrConfirmationController::class, 'show'])
+        ->name('ocr.confirmation');
+    Route::put('/ocr-confirmation/{vesselDocument}', [OcrConfirmationController::class, 'confirm'])
+        ->name('ocr.confirmation.confirm');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -57,8 +73,9 @@ Route::middleware(['auth', 'verified', 'active', 'last.seen'])->group(function (
 
     Route::middleware('role:super_admin,admin')->group(function () {
         Route::get('/users', [UsersController::class, 'index'])->name('users.index');
-        Route::get('/email-logs', fn () => Inertia::render('EmailLogs'))->name('email-logs.index');
-        Route::get('/audit-logs', fn () => Inertia::render('AuditLogs'))->name('audit-logs.index');
+        Route::get('/email-logs', [EmailLogsController::class, 'index'])->name('email-logs.index');
+        Route::post('/email-logs/send-reminders', [EmailLogsController::class, 'sendReminders'])->name('email-logs.send-reminders');
+        Route::get('/audit-logs', [AuditLogsController::class, 'index'])->name('audit-logs.index');
     });
 
     Route::middleware('role:user_cabang')->group(function () {

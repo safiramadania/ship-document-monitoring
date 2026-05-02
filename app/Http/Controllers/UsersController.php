@@ -24,6 +24,8 @@ class UsersController extends Controller
                     'job_title' => $user->job_title,
                     'last_login_at' => $user->last_login_at?->toDateTimeString(),
                     'last_seen_at' => $user->last_seen_at?->toDateTimeString(),
+                    'last_seen_label' => $this->lastSeenLabel($user),
+                    'online_recently' => $user->last_seen_at?->gte(now()->subMinutes(5)) ?? false,
                     'created_at' => $user->created_at?->toDateTimeString(),
                     'branch' => $user->branch ? [
                         'id' => $user->branch->id,
@@ -33,5 +35,18 @@ class UsersController extends Controller
                 ])
                 ->values(),
         ]);
+    }
+
+    private function lastSeenLabel(User $user): string
+    {
+        if (! $user->last_seen_at) {
+            return 'Never seen';
+        }
+
+        if ($user->last_seen_at->gte(now()->subMinutes(5))) {
+            return 'Online recently';
+        }
+
+        return 'Last seen '.$user->last_seen_at->diffForHumans();
     }
 }

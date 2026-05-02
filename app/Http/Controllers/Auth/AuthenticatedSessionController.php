@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +14,8 @@ use Inertia\Response;
 
 class AuthenticatedSessionController extends Controller
 {
+    public function __construct(private readonly AuditService $auditService) {}
+
     /**
      * Display the login view.
      */
@@ -35,6 +38,16 @@ class AuthenticatedSessionController extends Controller
             'last_login_at' => now(),
             'last_seen_at' => now(),
         ])->save();
+
+        $this->auditService->log(
+            action: 'user.login',
+            entity: $request->user(),
+            newValues: [
+                'last_login_at' => $request->user()->last_login_at?->toDateTimeString(),
+                'last_seen_at' => $request->user()->last_seen_at?->toDateTimeString(),
+            ],
+            request: $request,
+        );
 
         $request->session()->regenerate();
 

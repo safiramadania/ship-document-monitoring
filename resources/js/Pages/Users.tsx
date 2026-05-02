@@ -14,6 +14,8 @@ type UserRow = {
     job_title?: string | null;
     last_login_at?: string | null;
     last_seen_at?: string | null;
+    last_seen_label?: string | null;
+    online_recently: boolean;
     created_at?: string | null;
     branch?: BranchSummary | null;
 };
@@ -84,7 +86,20 @@ export default function Users({ users = [] }: { users: UserRow[] }) {
                                         {user.last_login_at ?? '-'}
                                     </td>
                                     <td className="px-5 py-4 text-slate-600">
-                                        {user.last_seen_at ?? '-'}
+                                        <div className="space-y-1">
+                                            <span
+                                                className={
+                                                    user.online_recently
+                                                        ? 'inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200'
+                                                        : 'inline-flex rounded-full bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200'
+                                                }
+                                            >
+                                                {user.last_seen_label ?? '-'}
+                                            </span>
+                                            <p className="text-xs text-slate-400">
+                                                {user.last_seen_at ?? '-'}
+                                            </p>
+                                        </div>
                                     </td>
                                     <td className="px-5 py-4 text-slate-600">
                                         {user.created_at ?? '-'}

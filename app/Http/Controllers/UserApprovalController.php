@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Enums\UserStatus;
 use App\Models\Branch;
 use App\Models\User;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -14,6 +15,8 @@ use Inertia\Response;
 
 class UserApprovalController extends Controller
 {
+    public function __construct(private readonly AuditService $auditService) {}
+
     public function index(): Response
     {
         return Inertia::render('UserApproval', [
@@ -43,6 +46,8 @@ class UserApprovalController extends Controller
             ],
         ]);
 
+        $oldValues = $user->only(['role', 'status', 'branch_id', 'approved_by', 'approved_at', 'rejected_reason']);
+
         $user->forceFill([
             'status' => UserStatus::Active->value,
             'role' => $validated['role'],
@@ -53,6 +58,14 @@ class UserApprovalController extends Controller
             'approved_at' => now(),
             'rejected_reason' => null,
         ])->save();
+
+        $this->auditService->log(
+            action: 'user.approved',
+            entity: $user,
+            oldValues: $oldValues,
+            newValues: $user->only(['role', 'status', 'branch_id', 'approved_by', 'approved_at', 'rejected_reason']),
+            request: $request,
+        );
 
         return back()->with('success', 'User berhasil disetujui.');
     }
@@ -65,12 +78,22 @@ class UserApprovalController extends Controller
             'rejected_reason' => ['required', 'string', 'max:1000'],
         ]);
 
+        $oldValues = $user->only(['role', 'status', 'branch_id', 'approved_by', 'approved_at', 'rejected_reason']);
+
         $user->forceFill([
             'status' => UserStatus::Rejected->value,
             'rejected_reason' => $validated['rejected_reason'],
             'approved_by' => null,
             'approved_at' => null,
         ])->save();
+
+        $this->auditService->log(
+            action: 'user.rejected',
+            entity: $user,
+            oldValues: $oldValues,
+            newValues: $user->only(['role', 'status', 'branch_id', 'approved_by', 'approved_at', 'rejected_reason']),
+            request: $request,
+        );
 
         return back()->with('success', 'User berhasil ditolak.');
     }

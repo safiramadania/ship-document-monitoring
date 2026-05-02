@@ -5,19 +5,21 @@ namespace App\Http\Controllers;
 use App\Enums\ProcessingStatus;
 use App\Enums\UploadMode;
 use App\Enums\ValidityStatus;
-use App\Models\AuditLog;
+use App\Jobs\ProcessVesselDocumentJob;
 use App\Models\DocumentType;
 use App\Models\Vessel;
 use App\Models\VesselDocument;
+use App\Services\AuditService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TargetedUploadController extends Controller
 {
+    public function __construct(private readonly AuditService $auditService) {}
+
     public function create(Request $request, Vessel $vessel, DocumentType $documentType): Response
     {
         $this->authorizeVesselAccess($request, $vessel);
@@ -72,25 +74,23 @@ class TargetedUploadController extends Controller
             'file_size' => $file->getSize(),
         ]);
 
-        AuditLog::create([
-            'user_id' => $request->user()->id,
-            'action' => 'document.uploaded',
-            'entity_type' => VesselDocument::class,
-            'entity_id' => $vesselDocument->id,
-            'new_values' => [
+        $this->auditService->log(
+            action: 'document.uploaded',
+            entity: $vesselDocument,
+            newValues: [
                 'vessel_id' => $vessel->id,
                 'document_type_id' => $documentType->id,
                 'upload_mode' => UploadMode::Targeted->value,
                 'processing_status' => ProcessingStatus::Pending->value,
             ],
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'created_at' => now(),
-        ]);
+            request: $request,
+        );
+
+        ProcessVesselDocumentJob::dispatchSync($vesselDocument->id);
 
         return redirect()
-            ->route('ocr.confirmation', ['vessel_document_id' => $vesselDocument->id])
-            ->with('success', 'Dokumen berhasil diunggah. Proses OCR akan diterapkan pada milestone berikutnya.');
+            ->route('ocr.confirmation', $vesselDocument)
+            ->with('success', 'Dokumen berhasil diunggah. Hasil OCR simulasi siap dikonfirmasi.');
     }
 
     private function authorizeVesselAccess(Request $request, Vessel $vessel): void
