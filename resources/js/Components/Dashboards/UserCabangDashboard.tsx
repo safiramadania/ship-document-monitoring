@@ -2,16 +2,42 @@ import {
     AlertTriangle,
     ClipboardCheck,
     Clock3,
+    FileQuestion,
     FileWarning,
+    Infinity,
     MonitorCheck,
     Ship,
     UploadCloud,
 } from 'lucide-react';
 
 import QuickActionCard from '@/Components/QuickActionCard';
+import RecentActivityList from '@/Components/RecentActivityList';
 import StatCard from '@/Components/StatCard';
 
-export default function UserCabangDashboard() {
+type Props = {
+    data: {
+        branch?: { id: number; code: string; name: string } | null;
+        stats: Record<string, number>;
+        recentUploads: Array<{
+            id: number;
+            vessel?: string | null;
+            branch?: string | null;
+            document_type?: string | null;
+            uploader?: string | null;
+            created_at?: string | null;
+            status: string;
+        }>;
+    };
+};
+
+export default function UserCabangDashboard({ data }: Props) {
+    const uploadActivities = data.recentUploads.map((upload) => ({
+        title: upload.document_type ?? 'Dokumen kapal',
+        description: `${upload.vessel ?? '-'} • uploaded by ${upload.uploader ?? 'seed data'}`,
+        timestamp: upload.created_at ?? '-',
+        status: upload.status,
+    }));
+
     return (
         <div className="space-y-6">
             <div className="rounded-lg border border-cyan-200 bg-white p-5 shadow-sm">
@@ -19,11 +45,13 @@ export default function UserCabangDashboard() {
                     Assigned Branch
                 </p>
                 <h2 className="mt-2 text-xl font-semibold text-slate-950">
-                    Cabang pengguna akan tampil di sini
+                    {data.branch
+                        ? `${data.branch.name} (${data.branch.code})`
+                        : 'Belum ada cabang'}
                 </h2>
                 <p className="mt-2 text-sm text-slate-500">
-                    Data cabang aktual akan terhubung setelah roles, approval,
-                    dan branch access dibuat.
+                    Dashboard ini hanya menggunakan data kapal dan dokumen dari
+                    cabang yang melekat pada user.
                 </p>
             </div>
 
@@ -33,35 +61,63 @@ export default function UserCabangDashboard() {
                     icon={Ship}
                     title="Total Kapal Cabang"
                     tone="cyan"
-                    value="0"
+                    value={String(data.stats.totalVessels)}
+                />
+                <StatCard
+                    helper="Record dokumen cabang"
+                    icon={UploadCloud}
+                    title="Total Documents"
+                    tone="blue"
+                    value={String(data.stats.totalVesselDocuments)}
                 />
                 <StatCard
                     helper="Required but not uploaded"
                     icon={FileWarning}
                     title="Documents Need Upload"
-                    tone="slate"
-                    value="0"
+                    tone="rose"
+                    value={String(data.stats.missingDocuments)}
                 />
                 <StatCard
                     helper="Waiting branch review"
                     icon={ClipboardCheck}
-                    title="Documents Need Confirmation"
+                    title="Need Confirmation"
                     tone="blue"
-                    value="0"
+                    value={String(data.stats.documentsNeedConfirmation)}
+                />
+                <StatCard
+                    helper="Active certificates"
+                    icon={MonitorCheck}
+                    title="Active"
+                    tone="emerald"
+                    value={String(data.stats.activeDocuments)}
                 />
                 <StatCard
                     helper="Due soon"
                     icon={Clock3}
                     title="Expiring Soon"
                     tone="amber"
-                    value="0"
+                    value={String(data.stats.expiringSoonDocuments)}
                 />
                 <StatCard
                     helper="Past expiry"
                     icon={AlertTriangle}
                     title="Expired"
                     tone="rose"
-                    value="0"
+                    value={String(data.stats.expiredDocuments)}
+                />
+                <StatCard
+                    helper="Permanent certificates"
+                    icon={Infinity}
+                    title="Permanent"
+                    tone="blue"
+                    value={String(data.stats.permanentDocuments)}
+                />
+                <StatCard
+                    helper="No expiry or unclear"
+                    icon={FileQuestion}
+                    title="Unknown"
+                    tone="slate"
+                    value={String(data.stats.unknownDocuments)}
                 />
             </div>
 
@@ -85,6 +141,8 @@ export default function UserCabangDashboard() {
                     title="Smart Upload"
                 />
             </div>
+
+            <RecentActivityList items={uploadActivities} title="Recent Uploads" />
         </div>
     );
 }

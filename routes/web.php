@@ -2,8 +2,12 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AccountStatusController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DocumentFileController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\UserApprovalController;
 use App\Http\Controllers\UsersController;
+use App\Http\Controllers\TargetedUploadController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -19,12 +23,20 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'active', 'last.seen'])->group(function () {
-    Route::get('/dashboard', fn () => Inertia::render('Dashboard'))->name('dashboard');
-    Route::get('/dashboard-cabang', fn () => Inertia::render('DashboardCabang'))
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard-cabang', [DashboardController::class, 'cabang'])
         ->middleware('role:user_cabang')
         ->name('dashboard.cabang');
-    Route::get('/monitoring-kapal', fn () => Inertia::render('MonitoringKapal'))->name('monitoring.index');
+    Route::get('/monitoring-kapal', [MonitoringController::class, 'index'])->name('monitoring.index');
     Route::get('/upload-dokumen', fn () => Inertia::render('UploadDokumen'))->name('uploads.index');
+    Route::get('/targeted-upload/{vessel}/{documentType}', [TargetedUploadController::class, 'create'])
+        ->name('targeted-uploads.create');
+    Route::post('/targeted-upload/{vessel}/{documentType}', [TargetedUploadController::class, 'store'])
+        ->name('targeted-uploads.store');
+    Route::get('/documents/{vesselDocument}/preview', [DocumentFileController::class, 'preview'])
+        ->name('documents.preview');
+    Route::get('/documents/{vesselDocument}/download', [DocumentFileController::class, 'download'])
+        ->name('documents.download');
     Route::get('/smart-upload', fn () => Inertia::render('SmartUpload'))->name('uploads.smart');
     Route::get('/ocr-confirmation', fn () => Inertia::render('OcrConfirmation'))->name('ocr.confirmation');
 

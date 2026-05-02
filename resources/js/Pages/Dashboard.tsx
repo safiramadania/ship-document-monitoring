@@ -6,7 +6,7 @@ import PageHeader from '@/Components/PageHeader';
 import { useCurrentRole } from '@/hooks/useCurrentRole';
 import { Head } from '@inertiajs/react';
 
-export default function Dashboard() {
+export default function Dashboard({ dashboardData }: { dashboardData: any }) {
     const role = useCurrentRole();
     const title = role === 'user_cabang' ? 'Dashboard Cabang' : 'Dashboard';
 
@@ -18,9 +18,13 @@ export default function Dashboard() {
                 title={title}
             />
 
-            {role === 'super_admin' && <SuperAdminDashboard />}
-            {role === 'admin' && <AdminDashboard />}
-            {role === 'user_cabang' && <UserCabangDashboard />}
+            {role === 'super_admin' && (
+                <SuperAdminDashboard data={dashboardData} />
+            )}
+            {role === 'admin' && <AdminDashboard data={dashboardData} />}
+            {role === 'user_cabang' && (
+                <UserCabangDashboard data={dashboardData} />
+            )}
         </AppLayout>
     );
 }

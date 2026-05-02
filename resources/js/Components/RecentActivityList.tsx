@@ -9,17 +9,35 @@ type Activity = {
 
 type RecentActivityListProps = {
     items: Activity[];
+    title?: string;
+    emptyTitle?: string;
+    emptyDescription?: string;
 };
 
-export default function RecentActivityList({ items }: RecentActivityListProps) {
+export default function RecentActivityList({
+    items,
+    title = 'Recent Activity',
+    emptyTitle = 'Belum ada aktivitas',
+    emptyDescription = 'Aktivitas terbaru akan tampil di sini setelah data tersedia.',
+}: RecentActivityListProps) {
     return (
         <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
             <div className="border-b border-slate-100 px-5 py-4">
                 <h2 className="text-base font-semibold text-slate-950">
-                    Recent Activity
+                    {title}
                 </h2>
             </div>
             <div className="divide-y divide-slate-100">
+                {items.length === 0 && (
+                    <div className="px-5 py-8 text-center">
+                        <p className="text-sm font-medium text-slate-700">
+                            {emptyTitle}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-500">
+                            {emptyDescription}
+                        </p>
+                    </div>
+                )}
                 {items.map((item) => (
                     <div
                         className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"

@@ -2,93 +2,162 @@ import {
     AlertTriangle,
     CheckCircle2,
     Clock3,
+    FileQuestion,
     FileWarning,
+    Infinity,
     Ship,
     UploadCloud,
+    Workflow,
 } from 'lucide-react';
 
+import EmptyState from '@/Components/EmptyState';
 import RecentActivityList from '@/Components/RecentActivityList';
 import StatCard from '@/Components/StatCard';
 
-const uploads = [
-    {
-        title: 'Document upload placeholder',
-        description: 'Recent uploads will show branch, vessel, and uploader.',
-        timestamp: '10:05',
-        status: 'processing',
-    },
-    {
-        title: 'Document edit placeholder',
-        description: 'Editor identity and timestamp will appear here later.',
-        timestamp: '09:22',
-        status: 'need_confirmation',
-    },
-    {
-        title: 'Email reminder placeholder',
-        description: 'Reminder history will connect in Milestone 10.',
-        timestamp: 'Yesterday',
-        status: 'unknown',
-    },
-];
+type RecentUpload = {
+    id: number;
+    vessel?: string | null;
+    branch?: string | null;
+    document_type?: string | null;
+    uploader?: string | null;
+    created_at?: string | null;
+    status: string;
+};
 
-export default function AdminDashboard() {
+type Props = {
+    data: {
+        stats: Record<string, number>;
+        recentUploads: RecentUpload[];
+        recentDocumentEdits: Array<{
+            id: number;
+            timestamp?: string | null;
+            user?: string | null;
+            action: string;
+            summary: string;
+        }>;
+    };
+};
+
+export default function AdminDashboard({ data }: Props) {
+    const uploadActivities = data.recentUploads.map((upload) => ({
+        title: upload.document_type ?? 'Dokumen kapal',
+        description: `${upload.vessel ?? '-'} • ${upload.branch ?? '-'} • uploaded by ${upload.uploader ?? 'seed data'}`,
+        timestamp: upload.created_at ?? '-',
+        status: upload.status,
+    }));
+
     return (
         <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                <StatCard
+                    helper="Cabang dalam monitoring"
+                    icon={Workflow}
+                    title="Total Cabang"
+                    tone="cyan"
+                    value={String(data.stats.totalBranches)}
+                />
                 <StatCard
                     helper="All-branch monitoring scope"
                     icon={Ship}
                     title="Total Kapal"
                     tone="cyan"
-                    value="164"
+                    value={String(data.stats.totalVessels)}
+                />
+                <StatCard
+                    helper="Record dokumen kapal"
+                    icon={UploadCloud}
+                    title="Total Documents"
+                    tone="blue"
+                    value={String(data.stats.totalVesselDocuments)}
                 />
                 <StatCard
                     helper="Confirmed active documents"
                     icon={CheckCircle2}
                     title="Active Documents"
                     tone="emerald"
-                    value="0"
+                    value={String(data.stats.activeDocuments)}
                 />
                 <StatCard
-                    helper="Due within configured threshold"
+                    helper="Due within 60 days"
                     icon={Clock3}
                     title="Expiring Soon"
                     tone="amber"
-                    value="0"
+                    value={String(data.stats.expiringSoonDocuments)}
                 />
                 <StatCard
                     helper="Past expiry date"
                     icon={AlertTriangle}
                     title="Expired"
                     tone="rose"
-                    value="0"
+                    value={String(data.stats.expiredDocuments)}
                 />
                 <StatCard
-                    helper="Required document not present"
+                    helper="Permanent certificates"
+                    icon={Infinity}
+                    title="Permanent"
+                    tone="blue"
+                    value={String(data.stats.permanentDocuments)}
+                />
+                <StatCard
+                    helper="No expiry or unclear"
+                    icon={FileQuestion}
+                    title="Unknown"
+                    tone="slate"
+                    value={String(data.stats.unknownDocuments)}
+                />
+                <StatCard
+                    helper="Required document absent"
                     icon={FileWarning}
                     title="Missing Documents"
-                    tone="slate"
-                    value="0"
+                    tone="rose"
+                    value={String(data.stats.missingDocuments)}
+                />
+                <StatCard
+                    helper="Waiting branch confirmation"
+                    icon={Clock3}
+                    title="Need Confirmation"
+                    tone="amber"
+                    value={String(data.stats.documentsNeedConfirmation)}
                 />
             </div>
 
             <div className="grid gap-6 xl:grid-cols-[1fr_0.8fr]">
-                <RecentActivityList items={uploads} />
+                <RecentActivityList
+                    items={uploadActivities}
+                    title="Recent Uploads"
+                />
                 <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-cyan-50 p-2.5 text-cyan-700 ring-1 ring-cyan-100">
-                            <UploadCloud className="h-5 w-5" />
+                    <h2 className="text-base font-semibold text-slate-950">
+                        Recent Document Edits
+                    </h2>
+                    {data.recentDocumentEdits.length === 0 ? (
+                        <div className="mt-4">
+                            <EmptyState
+                                description="Perubahan dokumen akan tampil setelah modul audit mencatat document.updated atau document.confirmed."
+                                title="Belum ada perubahan dokumen"
+                            />
                         </div>
-                        <div>
-                            <h2 className="text-base font-semibold text-slate-950">
-                                Recent Uploads
-                            </h2>
-                            <p className="mt-1 text-sm text-slate-500">
-                                Upload records will include branch, vessel,
-                                timestamp, and uploader identity.
-                            </p>
+                    ) : (
+                        <div className="mt-4 space-y-3">
+                            {data.recentDocumentEdits.map((edit) => (
+                                <div
+                                    className="rounded-md border border-slate-100 p-3"
+                                    key={edit.id}
+                                >
+                                    <p className="text-sm font-medium text-slate-950">
+                                        {edit.action}
+                                    </p>
+                                    <p className="mt-1 text-sm text-slate-500">
+                                        {edit.summary}
+                                    </p>
+                                    <p className="mt-1 text-xs text-slate-400">
+                                        {edit.user ?? '-'} •{' '}
+                                        {edit.timestamp ?? '-'}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

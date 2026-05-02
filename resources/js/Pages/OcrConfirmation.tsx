@@ -2,10 +2,14 @@ import AppLayout from '@/Components/AppLayout';
 import EmptyState from '@/Components/EmptyState';
 import PageHeader from '@/Components/PageHeader';
 import StatusBadge from '@/Components/StatusBadge';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { ClipboardCheck, FileText } from 'lucide-react';
 
 export default function OcrConfirmation() {
+    const flash = usePage().props.flash as
+        | { success?: string; error?: string }
+        | undefined;
+
     return (
         <AppLayout title="OCR Confirmation">
             <Head title="OCR Confirmation" />
@@ -14,6 +18,12 @@ export default function OcrConfirmation() {
                 description="Preview struktur halaman konfirmasi hasil OCR sebelum data masuk monitoring."
                 title="OCR Confirmation"
             />
+
+            {flash?.success && (
+                <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+                    {flash.success}
+                </div>
+            )}
 
             <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
                 <EmptyState
